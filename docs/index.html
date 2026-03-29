@@ -1,0 +1,702 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Saudi Arabia Autonomous Economy Simulator</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Tajawal:wght@300;400;500;700;800;900&display=swap" rel="stylesheet">
+<style>
+/* Glassmorphism Premium Dark Theme - Bi-directional */
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;overflow:hidden;background:linear-gradient(135deg, #0a0e17 0%, #151d2a 100%);color:#f0f4f8}
+html[dir="ltr"] body { font-family: 'Outfit', system-ui, sans-serif; }
+html[dir="rtl"] body { font-family: 'Tajawal', system-ui, sans-serif; }
+
+::-webkit-scrollbar{width:6px}
+::-webkit-scrollbar-track{background:rgba(0,0,0,0.2)}
+::-webkit-scrollbar-thumb{background:#00d986;border-radius:3px}
+input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:4px;border-radius:2px;outline:none;cursor:pointer;background:rgba(255,255,255,0.1)}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;height:14px;border-radius:50%;background:#00d986;cursor:pointer;box-shadow:0 0 10px rgba(0,217,134,0.6)}
+
+.app{display:flex;flex-direction:column;height:100vh}
+.header{padding:16px 24px;border-bottom:1px solid rgba(255,255,255,0.05);display:flex;align-items:center;justify-content:space-between;background:rgba(25,33,44,0.4);backdrop-filter:blur(16px);flex-shrink:0}
+.header-left { display: flex; align-items: center; gap: 16px; }
+.header h1{margin:0;font-size:20px;font-weight:800;letter-spacing:-0.5px;color:#00d986}
+.header p{margin:2px 0 0;font-size:12px;color:#8b9bb4}
+.lang-btn { background: rgba(255,255,255,0.1); border: none; color: #fff; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-weight: 700; transition: 0.2s; font-family: inherit;}
+.lang-btn:hover { background: #00d986; color: #000; }
+
+.presets{display:flex;gap:8px}
+.presets button{padding:6px 14px;font-size:12px;font-family: inherit;font-weight:700;border-radius:6px;border:1px solid rgba(255,255,255,0.1);background:rgba(0,0,0,0.2);color:#8b9bb4;cursor:pointer;transition:all 0.2s}
+.presets button:hover{background:rgba(0,217,134,0.2);color:#00d986;border-color:#00d986}
+
+.body{display:flex;flex:1;overflow:hidden}
+.panel{width:340px;overflow-y:auto;background:rgba(25,33,44,0.3);flex-shrink:0;padding:20px;backdrop-filter:blur(8px);transition:width 0.3s,padding 0.3s}
+html[dir="ltr"] .panel { border-right: 1px solid rgba(255,255,255,0.05); }
+html[dir="rtl"] .panel { border-left: 1px solid rgba(255,255,255,0.05); }
+
+.panel.closed{width:0;padding:0;overflow:hidden}
+.panel-toggle{display:flex;align-items:center;flex-shrink:0}
+.panel-toggle button{width:24px;height:60px;background:rgba(0,217,134,0.1);border:1px solid rgba(0,217,134,0.3);color:#00d986;cursor:pointer;display:flex;align-items:center;justify-content:center}
+html[dir="ltr"] .panel-toggle button { border-radius: 0 8px 8px 0; border-left: none; }
+html[dir="rtl"] .panel-toggle button { border-radius: 8px 0 0 8px; border-right: none; }
+
+.section-head{display:flex;align-items:center;justify-content:space-between;cursor:pointer;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.05);margin-bottom:12px}
+.section-head span{font-size:12px;font-weight:800;text-transform:uppercase;color:#00d986}
+.section-head .arrow{font-size:12px;color:#8b9bb4;transition: transform 0.2s;}
+.section{margin-bottom:16px}
+
+.slider-row{margin-bottom:12px}
+.slider-row.disabled{opacity:0.35;pointer-events:none}
+.slider-label{display:flex;justify-content:space-between;margin-bottom:6px}
+
+.slider-label span:first-child, .toggle .label-text {
+  font-size:13px; color:#8b9bb4; border-bottom: 1px dotted rgba(255,255,255,0.2); cursor: help; padding-bottom: 2px;
+}
+.slider-label .sval{font-size:14px;color:#f0f4f8;font-weight:800;direction:ltr;display:inline-block;border:none;}
+
+.toggle{display:flex;align-items:center;gap:12px;cursor:pointer;padding:6px 0;font-size:14px;user-select:none;transition:color 0.2s;color:#8b9bb4;font-weight:700;}
+.toggle .track{width:36px;height:20px;border-radius:10px;position:relative;background:rgba(255,255,255,0.1);flex-shrink:0}
+.toggle .thumb{width:16px;height:16px;border-radius:8px;background:#f0f4f8;position:absolute;top:2px;transition:0.2s;box-shadow:0 1px 3px rgba(0,0,0,0.5)}
+html[dir="ltr"] .toggle .thumb { left: 2px; }
+html[dir="rtl"] .toggle .thumb { right: 2px; }
+html[dir="ltr"] .toggle.on .thumb { left: 18px; }
+html[dir="rtl"] .toggle.on .thumb { right: 18px; }
+
+.toggle.on{color:#f0f4f8}
+.toggle.on .track{background:#00d986}
+
+.main{flex:1;display:flex;flex-direction:column;padding:24px;min-width:0;background:rgba(0,0,0,0.1)}
+.cards{display:flex;gap:16px;margin-bottom:20px;flex-wrap:wrap;flex-shrink:0}
+.card{background:rgba(25,33,44,0.4);backdrop-filter:blur(16px);border:1px solid rgba(255,255,255,0.05);border-radius:12px;padding:16px 20px;flex:1 1 150px;box-shadow:0 8px 32px 0 rgba(0,0,0,0.37)}
+.card .lbl{font-size:11px;font-weight:800;color:#8b9bb4;margin-bottom:4px;text-transform:uppercase}
+.card .val{font-size:26px;font-weight:800;direction:ltr;} 
+.card .sub{font-size:12px;color:#8b9bb4;margin-top:2px}
+
+.chart-wrap{flex:1;min-height:0;position:relative;background:rgba(25,33,44,0.2);border-radius:12px;padding:16px;border:1px solid rgba(255,255,255,0.05)}
+.chart-wrap canvas{width:100%!important;height:100%!important}
+
+.legend{display:flex;flex-wrap:wrap;gap:10px 24px;padding:16px 0 0;justify-content:center;flex-shrink:0}
+.legend-item{display:flex;align-items:center;gap:8px;font-size:13px;color:#8b9bb4;font-weight:700}
+.legend-dot{width:12px;height:12px;border-radius:3px}
+
+.footer{font-size:12px;color:#8b9bb4;text-align:center;padding:12px 0 0;flex-shrink:0}
+.note{font-size:12px;color:#8b9bb4;margin:8px 0 0;line-height:1.6;background:rgba(0,217,134,0.05);padding:10px;border-radius:8px;}
+html[dir="ltr"] .note { border-left: 3px solid #00d986; }
+html[dir="rtl"] .note { border-right: 3px solid #00d986; }
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="header">
+    <div class="header-left">
+      <div>
+        <h1 id="titleText">Saudi Arabia Autonomous Economy Simulator</h1>
+        <p id="api-status">Connecting to World Bank API Data Model...</p>
+      </div>
+      <button class="lang-btn" id="langToggle" title="Translate / تغيير اللغة">عربي (SAR)</button>
+    </div>
+    <div class="presets" id="presetButtons">
+      <!-- Injected by JS -->
+    </div>
+  </div>
+
+  <div class="body">
+    <div class="panel" id="panel"></div>
+    <div class="panel-toggle">
+      <button onclick="togglePanel()" id="panelBtn" title="Toggle Sidebar">◂</button>
+    </div>
+    <div class="main">
+      <div class="cards" id="cards"></div>
+      <div class="chart-wrap"><canvas id="chart"></canvas></div>
+      <div class="legend" id="legend"></div>
+      <div class="footer" id="footerText">Saudi Automated Economy Framework · Baseline inputs from Free World Bank API · Constant USD Equivalent</div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ══════════════════════════════════════════════════════════
+// I18N DICTIONARY WITH TOOLTIPS
+// ══════════════════════════════════════════════════════════
+const LOCALE = {
+  en: {
+    title: "Saudi Arabia Autonomous Economy Simulator",
+    apiConnecting: "Connecting to World Bank API Data Model...",
+    apiLive: "Live API Connected - GDP: ${gdp} | PIF AUM: ${pif}",
+    apiLocal: "Local Mode (Failed to parse JSON API)",
+    footer: "Saudi Automated Economy Framework · Baseline inputs from Free World Bank API",
+    presets: { proactive: "Vision 2030", reactive: "Reactive Support", delayed: "Delayed Shift", noAction: "No Action" },
+    streams: {
+      wages: "National Wages", social: "Structural Subsidies", ubi: "Citizen's Account (Enhanced)", swf: "PIF Dividend",
+      esop: "Tadawul PE", babyBonds: "Youth Grants (Nitaqat)", dataRoyalty: "AI & Data Royalty", carbon: "Energy Commons", deMonet: "Deflation Gain"
+    },
+    sections: {
+      scope: "Simulation Scope", pif: "Public Investment Fund (PIF)", ca: "Citizen's Account (UBI)", tadawul: "Tadawul & Private Equity", youth: "Youth & Energy Commons", deflation: "Deflationary Effects"
+    },
+    sliders: {
+      endYear: "End Year", autoPace: "Automation Pace", gdpGrowth: "Base GDP Growth",
+      enablePIF: "Enable PIF Dividend", pifAum: "Seed AUM", pifContrib: "State Contrib.", pifRet: "Return Rate", pifSpend: "Civic Spend Rule",
+      enableCA: "Enable CA Expansion", caMo: "Target / Mo", caRamp: "Expansion Ramp",
+      enableTadawul: "Enable Broad Equity", tadawulGr: "Domestic Eq. Growth", enableData: "AI / Data Royalties", dataMax: "Max Royalty Pool",
+      enableYouth: "Youth Grants (Nitaqat)", youthSeed: "Seed Amount", enableEnergy: "Energy / Aramco Base", energyDiv: "Energy Div.",
+      enableDemonet: "AI Demonetization", demonetMax: "Max Deflation",
+    },
+    tooltips: {
+      endYear: "The furthest date in the future the simulation projects out to.",
+      autoPace: "Percentage of human-performed labor tasks transferred to AI/Robotics annually.",
+      gdpGrowth: "Organic independent annual GDP growth rate.",
+      enablePIF: "Activate the Sovereign Wealth Fund physics in the simulation.", 
+      pifAum: "Starting baseline capital of the PIF.",
+      pifContrib: "Percentage of the nation's GDP injected into the PIF each year.",
+      pifRet: "Expected annual ROI percentage from PIF global assets.",
+      pifSpend: "Percentage of PIF's total balance liquidated yearly as citizen dividends.",
+      enableCA: "Expand the Citizen's Account into a massive Universal Basic Income program.",
+      caMo: "Baseline explicitly granted monthly to adult citizens.",
+      caRamp: "Years it takes for the state to ramp up to the Target amount.",
+      enableTadawul: "Allow citizens to systematically acquire privatized industrial capital.",
+      tadawulGr: "Modeled broad equity growth representing private sector transfer.",
+      enableData: "Compensate citizens for training generative AI state models with their data.",
+      dataMax: "The theoretical ceiling of annual royalties per household at full AGI.",
+      enableYouth: "Automatically invest state capital for newborns until age 18.",
+      youthSeed: "The starting capital allocated strictly at birth.",
+      enableEnergy: "Provide explicit cash returns strictly from fossil/mineral sale revenues.",
+      energyDiv: "Absolute energy grant per year.",
+      enableDemonet: "Simulate massive cost-of-living collapses across healthcare and legal sectors due to AI.",
+      demonetMax: "The absolute basement % that costs can drop, massively multiplying real purchasing power.",
+    },
+    units: { yr: " yrs", pctYr: "%/yr", pct: "%", b: " B", mo: "/mo", hh: "/HH", cur: "$" },
+    notes: {
+      deflation: "AI forces prices for digital services, transport, and energy toward zero, increasing real value of baseline incomes."
+    },
+    cards: {
+      base: "Baseline", equiv: "Household Equiv",
+      mid: "Midpoint", auto: "Automated",
+      end: "End State", pif: "PIF Balance", gdp: "GDP", vs: "vs. Base",
+      vsSub: "of baseline currency"
+    }
+  },
+  ar: {
+    title: "محاكي الاقتصاد المستقل للمملكة العربية السعودية",
+    apiConnecting: "جاري الاتصال بنموذج بيانات البنك الدولي...",
+    apiLive: "متصل بالبيانات الحية - الناتج المحلي: ${gdp} | أصول صندوق الاستثمارات: ${pif}",
+    apiLocal: "الوضع المحلي (تعذر جلب البيانات. استخدم خادم http)",
+    footer: "إطار الاقتصاد المؤتمت السعودي · المدخلات الأساسية من البنك الدولي",
+    presets: { proactive: "رؤية 2030", reactive: "دعم تفاعلي", delayed: "تحول متأخر", noAction: "بدون إجراء" },
+    streams: {
+      wages: "الأجور الوطنية", social: "الدعم الهيكلي", ubi: "حساب المواطن (المطور)", swf: "التوزيعات السيادية (صندوق)",
+      esop: "تداول والأسهم الخاصة", babyBonds: "منح الشباب (نطاقات)", dataRoyalty: "عوائد البيانات والذكاء الاصطناعي", carbon: "عوائد موارد الطاقة", deMonet: "مكاسب الانكماش"
+    },
+    sections: {
+      scope: "نطاق المحاكاة", pif: "صندوق الاستثمارات العامة", ca: "حساب المواطن", tadawul: "تداول والأسهم الخاصة", youth: "منح الشباب والطاقة", deflation: "التأثيرات الانكماشية"
+    },
+    sliders: {
+      endYear: "سنة النهاية", autoPace: "وتيرة الأتمتة", gdpGrowth: "نمو الناتج المحلي",
+      enablePIF: "تفعيل التوزيعات السيادية", pifAum: "الأصول المدارة", pifContrib: "المساهمة من الناتج", pifRet: "معدل العائد", pifSpend: "قاعدة الإنفاق المدني",
+      enableCA: "توسيع حساب المواطن", caMo: "الهدف الشهري / للفرد", caRamp: "سنوات التدرج",
+      enableTadawul: "تفعيل الأسهم لعامة الشعب", tadawulGr: "نمو الأسهم المحلية", enableData: "عوائد الذكاء الاصطناعي", dataMax: "أقصى عائد للبيانات",
+      enableYouth: "منح الشباب (نطاقات)", youthSeed: "مبلغ التأسيس", enableEnergy: "عائدات موارد الطاقة", energyDiv: "توزيعات الطاقة",
+      enableDemonet: "انكماش تكاليف الذكاء الاصطناعي", demonetMax: "أقصى انخفاض للأسعار",
+    },
+    tooltips: {
+      endYear: "تاريخ انتهاء المحاكاة الجارية.",
+      autoPace: "نسبة مهام العمل البشرية التي تنتقل وتستبدل بالذكاء الاصطناعي في كل عام.",
+      gdpGrowth: "معدل نمو الناتج المحلي الإجمالي السنوي الأساسي.",
+      enablePIF: "تشغيل أو إيقاف محاكاة صندوق الاستثمارات والأرباح السيادية.", 
+      pifAum: "رأس المال الأساسي وصافي الأصول المدارة لصندوق الاستثمارات بالمليارات.",
+      pifContrib: "النسبة المئوية من الناتج المحلي الإجمالي التي يتم ضخها في الصندوق سنوياً.",
+      pifRet: "معدل العائد السنوي المتوقع لاستثمارات صندوق الاستثمارات العامة.",
+      pifSpend: "النسبة المستقطعة سنوياً من إجمالي أصول الصندوق وتوزيعها كأرباح للمواطنين.",
+      enableCA: "تفعيل توسيع حساب المواطن ليكون بمثابة دخل أساسي شامل وضخم.",
+      caMo: "المعادل المستهدف للإعانة الشهرية الأساسية الممنوحة بشكل مباشر للفرد.",
+      caRamp: "الفترة الزمنية بالسنوات لرفع قيمة الدعم تدريجياً للوصول إلى الهدف الشهري المطلوب.",
+      enableTadawul: "توسيع ملكية رأس المال الخاص وإشراك المواطنين في الأصول الاستثمارية للشركات.",
+      tadawulGr: "معدل العائد الافتراضي من الأسهم الخاصة وتداول للأسرة.",
+      enableData: "تحويل البيانات الوطنية والشخصية إلى أصل سيادي يدفع عوائد سنوية للمواطنين.",
+      dataMax: "الحد الأقصى للعوائد المدفوعة للأسرة الواحدة من أرباح تقنيات الذكاء الاصطناعي المعمم.",
+      enableYouth: "الاستثمار الآلي لرأس مال مخصص للشباب (الأطفال) حتى وصولهم سن 18.",
+      youthSeed: "منحة رأس مال تأسيسية تقدم للمواطن تلقائياً عند الولادة وتتراكم أرباحها.",
+      enableEnergy: "توزيع مباشر للأرباح المستمدة بحتة من عائدات النفط وموارد الطاقة.",
+      energyDiv: "شريحة الأرباح السنوية الموزعة من الطاقة للفرد.",
+      enableDemonet: "محاكاة هبوط تكاليف قطاع النقل، العلاج، والتعليم استجابة لانفجار إنتاجية الذكاء الاصطناعي.",
+      demonetMax: "الحد الأقصى لانخفاض الأسعار، مما يضاعف القوة الشرائية الحقيقية للدعم الثابت.",
+    },
+    units: { yr: " سنوات", pctYr: "%/سنة", pct: "%", b: " مليار", mo: "/شهراً", hh: "/للأسرة", cur: " ر.س" },
+    notes: {
+      deflation: "الذكاء الاصطناعي يدفع أسعار الخدمات الرقمية والنقل والطاقة نحو الصفر، مما يزيد من القوة الشرائية للدخل الأساسي."
+    },
+    cards: {
+      base: "خط الأساس", equiv: "الدخل المكافئ للأسرة",
+      mid: "نقطة المنتصف", auto: "مؤتمتة بـ",
+      end: "النهاية", pif: "رصيد السيادي", gdp: "الناتج المحلي", vs: "مقارنة بالأساس",
+      vsSub: "من القوة الشرائية الأساسية"
+    }
+  }
+};
+
+let currentLang = 'en';
+
+// Formatters using strictly Western Arabic Numerals (0-9) via latn
+const numFmt = new Intl.NumberFormat('en-US', { numberingSystem: 'latn', useGrouping: true, maximumFractionDigits: 0 });
+const numFmtDec = new Intl.NumberFormat('en-US', { numberingSystem: 'latn', maximumFractionDigits: 1, minimumFractionDigits: 1 });
+
+function __(key, group = null) { return group ? LOCALE[currentLang][group][key] : LOCALE[currentLang][key]; }
+function fmtVal(val) { return numFmt.format(val); }
+
+// CURRENCY CONVERSION ENGINE //
+function currentRatio() { return currentLang === 'ar' ? 3.75 : 1; }
+function currentSym() { return currentLang === 'ar' ? 'SAR ' : '$'; }
+
+// Specific formatting for the local currency
+function fmtMoney(valUsd) { 
+  return currentSym() + numFmt.format(valUsd * currentRatio()); 
+}
+function fmtMoneyK(valUsd) { 
+  const v = valUsd * currentRatio();
+  return v >= 1000 ? currentSym() + numFmt.format(Math.round(v/1000)) + (currentLang==='ar'?' ألف':'k') : currentSym() + numFmt.format(v); 
+}
+function fmtMoneyT(valUsdTrillions) {
+  const v = valUsdTrillions * currentRatio();
+  return currentSym() + numFmtDec.format(v) + (currentLang==='ar'?' تريليون':'T');
+}
+
+document.getElementById('langToggle').addEventListener('click', () => {
+  currentLang = currentLang === 'en' ? 'ar' : 'en';
+  document.documentElement.lang = currentLang;
+  document.documentElement.dir = currentLang === 'ar' ? 'rtl' : 'ltr';
+  document.getElementById('langToggle').innerText = currentLang === 'en' ? 'عربي (SAR)' : 'English (USD)';
+  document.getElementById('panelBtn').textContent = currentLang === 'ar' ? '▸' : '◂';
+  
+  if(apiStore) updateApiStatus(apiStore);
+  
+  renderPresets();
+  document.getElementById('titleText').innerText = __('title');
+  document.getElementById('footerText').innerText = __('footer');
+  buildPanel();
+  update();
+});
+
+function renderPresets() {
+  document.getElementById('presetButtons').innerHTML = `
+    <button onclick="applyPreset('proactive')">${__('proactive', 'presets')}</button>
+    <button onclick="applyPreset('reactive')">${__('reactive', 'presets')}</button>
+    <button onclick="applyPreset('delayed')">${__('delayed', 'presets')}</button>
+    <button onclick="applyPreset('noAction')">${__('noAction', 'presets')}</button>
+  `;
+}
+
+// ══════════════════════════════════════════════════════════
+// CONSTANTS & BASELINES (ALL INTERNALLY USD)
+// ══════════════════════════════════════════════════════════
+let NUM_HH = 4000000;
+let BASE_GDP_B = 1108; 
+let BASE_YEAR = 2025;
+let BASE_MEDIAN = 48000; 
+let apiStore = null;
+
+const DEFAULTS = {
+  endYear:2060, automationPace:2.5, baseGdpGrowth:2.0,
+  pifSeedAum:925, pifContribRate:1.5, pifReturnRate:7.0, pifSpendRule:3.0,
+  caMonthly:1000, caRampYears:12,
+  youthGrantSeed:5000, youthGrantReturn:7.0, youthGrantMaturity:18,
+  tadawulGrowth:7.0, dataRoyaltyMax:12000,
+  energyBase:900, energyGrowth:4.0,
+  demonetRate:35,
+  enablePIF:true, enableCA:true, enableYouth:true, enableVAT:true,
+  enableEnergy:true, enableDataRoyalty:true, enableTadawul:true, enableDemonet:true,
+};
+
+let P = Object.assign({}, DEFAULTS);
+let panelOpen = true;
+let chart = null;
+
+// ══════════════════════════════════════════════════════════
+// API INTEGRATION
+// ══════════════════════════════════════════════════════════
+function updateApiStatus(data) {
+  if(!data) {
+    document.getElementById('api-status').innerHTML = `<span style="color:#FF6B6B">●</span> ${__('apiLocal')}`;
+    return;
+  }
+  let s = __('apiLive')
+    .replace('${gdp}', fmtMoneyT(data.gdp_usd.value / 1e12))
+    .replace('${pif}', fmtMoney(data.pif_aum_billion_usd.value) + __('units', 'b'));
+  document.getElementById('api-status').innerHTML = `<span style="color:#00d986">●</span> ` + s;
+}
+
+async function loadRealData() {
+  renderPresets();
+  try {
+    const res = await fetch('../macro_data.json');
+    if (!res.ok) throw new Error("API File not found");
+    const json = await res.json();
+    apiStore = json.saudi_arabia;
+    
+    if(apiStore.gdp_usd) BASE_GDP_B = apiStore.gdp_usd.value / 1e9;
+    if(apiStore.gdp_growth_annual_percent) P.baseGdpGrowth = apiStore.gdp_growth_annual_percent.value;
+    if(apiStore.pif_aum_billion_usd) P.pifSeedAum = apiStore.pif_aum_billion_usd.value;
+    
+    updateApiStatus(apiStore);
+  } catch (err) {
+    console.warn("Could not load API data", err);
+    updateApiStatus(null);
+  }
+  buildPanel();
+  update();
+}
+
+// ══════════════════════════════════════════════════════════
+// SIMULATION ENGINE
+// ══════════════════════════════════════════════════════════
+function simulate(p) {
+  const data = [];
+  let gdpB = BASE_GDP_B;
+  let pifBalanceB = p.enablePIF ? p.pifSeedAum : 0;
+  let automationLevel = 0.05;
+
+  for (let year = BASE_YEAR; year <= p.endYear; year++) {
+    const t = year - BASE_YEAR;
+    const rawPace = p.automationPace / 100;
+    
+    automationLevel = Math.min(0.95, automationLevel + rawPace * (1 + automationLevel) * (1 - automationLevel));
+    gdpB = gdpB * (1 + p.baseGdpGrowth / 100 + automationLevel * 0.025);
+
+    let rev = 0.50; 
+    if (p.enableVAT) rev += 0.15; 
+    if (p.enableDataRoyalty) rev += 0.05;
+    rev = Math.min(1.0, rev);
+
+    const autoForce = Math.max(0, automationLevel - 0.05) / 0.95;
+    const wages = Math.max(5000, BASE_MEDIAN * Math.max(0.05, 1 - autoForce * 0.9) * (1 + autoForce * 0.2));
+    
+    const social = 6000 * Math.pow(gdpB / BASE_GDP_B, 0.25) * (1 + t * 0.005);
+
+    let swfDiv = 0;
+    if (p.enablePIF) {
+      const c = (p.pifContribRate / 100) * gdpB * rev; 
+      const r = pifBalanceB * (p.pifReturnRate / 100);
+      const d = pifBalanceB * (p.pifSpendRule / 100);
+      pifBalanceB = pifBalanceB + c + r - d;
+      swfDiv = (d * 1e9) / NUM_HH; 
+    }
+
+    let ubi = 0;
+    if (p.enableCA) ubi = p.caMonthly * 12 * Math.min(1, t / Math.max(1, p.caRampYears)) * rev;
+
+    let esop = 0;
+    if (p.enableTadawul) esop = Math.min(30000, 1000 * Math.pow(1 + p.tadawulGrowth / 100, t) * Math.pow(gdpB / BASE_GDP_B, 0.3) * Math.min(1, t / 8));
+
+    let bb = 0;
+    if (p.enableYouth && t >= p.youthGrantMaturity) {
+        const mv = p.youthGrantSeed * Math.pow(1 + p.youthGrantReturn / 100, p.youthGrantMaturity);
+        bb = mv * (p.youthGrantReturn / 100) * Math.min(1, (t - p.youthGrantMaturity) / 25);
+    }
+
+    let dr = 0;
+    if (p.enableDataRoyalty) dr = p.dataRoyaltyMax * automationLevel * Math.pow(gdpB / BASE_GDP_B, 0.4) * rev * Math.min(1, t / 10);
+
+    let carb = 0;
+    if (p.enableEnergy) carb = p.energyBase * Math.pow(1 + p.energyGrowth / 100, t) * Math.min(1, t / 5);
+
+    const nom = wages + social + ubi + swfDiv + esop + bb + dr + carb;
+
+    let dm = 0;
+    if (p.enableDemonet) {
+      const cr = (p.demonetRate / 100) * autoForce;
+      if (cr > 0 && cr < 1) dm = nom * (1 / (1 - cr) - 1);
+    }
+
+    // ALL data.push operations keep the numbers strictly in USD
+    data.push({
+      year, wages:Math.round(wages), social:Math.round(social), ubi:Math.round(ubi),
+      swf:Math.round(swfDiv), esop:Math.round(esop), babyBonds:Math.round(bb),
+      dataRoyalty:Math.round(dr), carbon:Math.round(carb),
+      deMonet:Math.round(dm), total:Math.round(nom + dm),
+      automationLevel:Math.round(automationLevel * 100),
+      // For GDP & PIF we store them in trillions USD here
+      gdpT:(gdpB / 1000), pifT:(pifBalanceB / 1000),
+    });
+  }
+  return data;
+}
+
+// ══════════════════════════════════════════════════════════
+// UI BUILDERS
+// ══════════════════════════════════════════════════════════
+function makeSlider(container, locKey, key, min, max, step, unitKey, disableKey) {
+  const row = document.createElement('div');
+  row.className = 'slider-row' + (disableKey && !P[disableKey] ? ' disabled' : '');
+  row.dataset.disableKey = disableKey || '';
+
+  // Determine if this represents money
+  const isMoney = (unitKey === 'mo' || unitKey === 'hh' || unitKey === 'b');
+  const ratio = isMoney ? currentRatio() : 1;
+  const prefix = isMoney ? currentSym() : '';
+  
+  const lbl = document.createElement('div');
+  lbl.className = 'slider-label';
+  lbl.innerHTML = `<span title="${__('tooltips')[locKey]}">${__('sliders')[locKey]}</span><span class="sval">${prefix}${fmtVal(P[key] * ratio)}${__('units')[unitKey]}</span>`;
+
+  const inp = document.createElement('input');
+  inp.type = 'range'; 
+  inp.min = min * ratio; 
+  inp.max = max * ratio; 
+  inp.step = isMoney ? step * ratio : step; 
+  inp.value = P[key] * ratio;
+  
+  inp.addEventListener('input', function() {
+    P[key] = parseFloat(this.value) / ratio; // Save internal state as pure USD
+    row.querySelector('.sval').textContent = prefix + fmtVal(P[key] * ratio) + __('units')[unitKey];
+    update();
+  });
+
+  row.appendChild(lbl);
+  row.appendChild(inp);
+  container.appendChild(row);
+}
+
+function makeToggle(container, locKey, key, color) {
+  const div = document.createElement('div');
+  div.className = 'toggle ' + (P[key] ? 'on' : 'off');
+  div.title = __('tooltips')[locKey];
+
+  const track = document.createElement('div'); track.className = 'track';
+  const thumb = document.createElement('div'); thumb.className = 'thumb';
+  if(P[key] && color) track.style.background = color;
+  track.appendChild(thumb);
+  
+  const spanLabel = document.createElement('span');
+  spanLabel.className = 'label-text';
+  spanLabel.textContent = __('sliders')[locKey];
+
+  div.appendChild(track);
+  div.appendChild(spanLabel);
+
+  div.onclick = function() {
+    P[key] = !P[key];
+    div.className = 'toggle ' + (P[key] ? 'on' : 'off');
+    if(color) track.style.background = P[key] ? color : '';
+    document.querySelectorAll('.slider-row').forEach(r => {
+      if (r.dataset.disableKey === key) r.className = 'slider-row' + (!P[key] ? ' disabled' : '');
+    });
+    update();
+  };
+  container.appendChild(div);
+}
+
+function makeSection(container, locKey, builder) {
+  const sec = document.createElement('div');
+  sec.className = 'section';
+  const head = document.createElement('div');
+  head.className = 'section-head';
+  const arrow = currentLang === 'ar' ? '▾' : '▾'; 
+  head.innerHTML = `<span>${__('sections')[locKey]}</span><span class="arrow">${arrow}</span>`;
+  const body = document.createElement('div');
+  
+  head.onclick = () => {
+    const open = body.style.display !== 'none';
+    body.style.display = open ? 'none' : 'block';
+    const a = currentLang === 'ar' ? (open ? '▸' : '▾') : (open ? '▸' : '▾');
+    head.querySelector('.arrow').textContent = a;
+  };
+  builder(body);
+  sec.appendChild(head);
+  sec.appendChild(body);
+  container.appendChild(sec);
+}
+
+function makeNote(container, locKey) {
+  const p = document.createElement('p');
+  p.className = 'note';
+  p.textContent = __('notes')[locKey];
+  container.appendChild(p);
+}
+
+function buildPanel() {
+  const el = document.getElementById('panel');
+  el.innerHTML = '';
+
+  makeSection(el, 'scope', b => {
+    makeSlider(b, 'endYear', 'endYear', 2035, 2100, 5, 'yr');
+    makeSlider(b, 'autoPace', 'automationPace', 0.5, 6, 0.1, 'pctYr');
+    makeSlider(b, 'gdpGrowth', 'baseGdpGrowth', 0.5, 8, 0.1, 'pct');
+  });
+
+  makeSection(el, 'pif', b => {
+    makeToggle(b, 'enablePIF', 'enablePIF', '#008751');
+    makeSlider(b, 'pifAum', 'pifSeedAum', 500, 5000, 50, 'b', 'enablePIF');
+    makeSlider(b, 'pifContrib', 'pifContribRate', 0, 5, 0.1, 'pct', 'enablePIF');
+    makeSlider(b, 'pifRet', 'pifReturnRate', 2, 15, 0.5, 'pct', 'enablePIF');
+    makeSlider(b, 'pifSpend', 'pifSpendRule', 0, 8, 0.5, 'pct', 'enablePIF');
+  });
+
+  makeSection(el, "ca", b => {
+    makeToggle(b, "enableCA", 'enableCA', '#2DD4A8');
+    makeSlider(b, 'caMo', 'caMonthly', 250, 5000, 50, 'mo', 'enableCA');
+    makeSlider(b, 'caRamp', 'caRampYears', 3, 25, 1, 'yr', 'enableCA');
+  });
+
+  makeSection(el, 'tadawul', b => {
+    makeToggle(b, 'enableTadawul', 'enableTadawul', '#FF6B6B');
+    makeSlider(b, 'tadawulGr', 'tadawulGrowth', 1, 15, 0.5, 'pctYr', 'enableTadawul');
+    makeToggle(b, 'enableData', 'enableDataRoyalty', '#38BDF8');
+    makeSlider(b, 'dataMax', 'dataRoyaltyMax', 1000, 30000, 500, 'hh', 'enableDataRoyalty');
+  });
+
+  makeSection(el, 'youth', b => {
+    makeToggle(b, 'enableYouth', 'enableYouth', '#C084FC');
+    makeSlider(b, 'youthSeed', 'youthGrantSeed', 1000, 50000, 500, 'mo', 'enableYouth');
+    makeToggle(b, 'enableEnergy', 'enableEnergy', '#34D399');
+    makeSlider(b, 'energyDiv', 'energyBase', 200, 5000, 100, 'mo', 'enableEnergy');
+  });
+
+  makeSection(el, 'deflation', b => {
+    makeToggle(b, 'enableDemonet', 'enableDemonet', '#F472B6');
+    makeSlider(b, 'demonetMax', 'demonetRate', 0, 80, 1, 'pct', 'enableDemonet');
+    makeNote(b, 'deflation');
+  });
+}
+
+// ══════════════════════════════════════════════════════════
+// CHART SETUP (Displays multiplied SAR / USD dynamically)
+// ══════════════════════════════════════════════════════════
+const RAW_STREAMS = [
+  {key:"wages", color:"#5B8DEF"}, {key:"social", color:"#A78BFA"}, {key:"ubi", color:"#2DD4A8"},
+  {key:"swf", color:"#008751"}, {key:"esop", color:"#FF6B6B"}, {key:"babyBonds", color:"#C084FC"},
+  {key:"dataRoyalty", color:"#38BDF8"}, {key:"carbon", color:"#34D399"}, {key:"deMonet", color:"#F472B6"},
+];
+
+function activeStreams() {
+  return RAW_STREAMS.filter(s => {
+    if (s.key === 'swf') return P.enablePIF;
+    if (s.key === 'ubi') return P.enableCA;
+    if (s.key === 'esop') return P.enableTadawul;
+    if (s.key === 'babyBonds') return P.enableYouth;
+    if (s.key === 'dataRoyalty') return P.enableDataRoyalty;
+    if (s.key === 'carbon') return P.enableEnergy;
+    if (s.key === 'deMonet') return P.enableDemonet;
+    return true; 
+  }).map(s => ({ ...s, label: __('streams')[s.key] }));
+}
+
+function buildChart(data) {
+  const ctx = document.getElementById('chart').getContext('2d');
+  const labels = data.map(d => fmtVal(d.year));
+  const streams = activeStreams();
+
+  // Multiply dataset array immediately by ratio to draw chart correctly
+  const datasets = streams.map(s => ({
+    label: s.label,
+    data: data.map(d => d[s.key] * currentRatio()), 
+    backgroundColor: s.color + '40',
+    borderColor: s.color,
+    borderWidth: 2,
+    fill: true,
+    pointRadius: 0,
+    pointHitRadius: 10,
+    tension: 0.4,
+  }));
+
+  if (chart) chart.destroy();
+
+  Chart.defaults.color = '#8b9bb4';
+  Chart.defaults.font.family = currentLang === 'ar' ? "'Tajawal', sans-serif" : "'Outfit', sans-serif";
+
+  chart = new Chart(ctx, {
+    type: 'line',
+    data: { labels, datasets },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      interaction: { mode: 'index', intersect: false },
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          backgroundColor: 'rgba(25, 33, 44, 0.9)',
+          borderColor: 'rgba(255, 255, 255, 0.1)',
+          borderWidth: 1,
+          titleFont: { size: 14, weight: '800' },
+          bodyFont: { size: 12 },
+          padding: 14,
+          cornerRadius: 8,
+          rtl: currentLang === 'ar',
+          textDirection: currentLang === 'ar' ? 'rtl' : 'ltr',
+          callbacks: {
+            title: items => {
+              if (!items.length) return '';
+              const r = data[items[0].dataIndex];
+              return `${fmtVal(r.year)} — ${fmtMoney(r.total)} / ${__('cards').equiv}`;
+            },
+            afterTitle: items => {
+              const r = data[items[0].dataIndex];
+              return `${__('cards').auto}: ${fmtVal(r.automationLevel)}% | GDP: ${fmtMoneyT(r.gdpT)} | PIF: ${fmtMoneyT(r.pifT)}`;
+            },
+            // Note: ctx.raw is ALREADY multiplied by ratio because we injected it multiplied!
+            label: ctx => ctx.raw ? ` ${ctx.dataset.label}: ${currentSym()}${fmtVal(ctx.raw)}` : null
+          }
+        }
+      },
+      scales: {
+        x: { grid: { color: 'rgba(255,255,255,0.05)' }, reverse: currentLang === 'ar' }, 
+        y: {
+          position: currentLang === 'ar' ? 'right' : 'left',
+          stacked: true,
+          grid: { color: 'rgba(255,255,255,0.05)' },
+          ticks: { callback: v => {
+             return v >= 1000 ? currentSym() + numFmt.format(Math.round(v/1000)) + (currentLang==='ar'?' ألف':'k') : currentSym() + numFmt.format(v);
+          } }
+        }
+      }
+    }
+  });
+}
+
+function updateCards(data) {
+  const first = data[0], last = data[data.length - 1], mid = data[Math.floor(data.length / 2)];
+  const CC = __('cards');
+  const cards = [
+    { l: `${CC.base} ${fmtVal(BASE_YEAR)}`, v: fmtMoney(first.total), s: CC.equiv, a: '#8b9bb4' },
+    { l: `${CC.mid} ${fmtVal(mid.year)}`, v: fmtMoney(mid.total), s: `${fmtVal(mid.automationLevel)}% ${CC.auto}`, a: '#5B8DEF' },
+    { l: `${CC.end} ${fmtVal(last.year)}`, v: fmtMoney(last.total), s: `${fmtVal(last.automationLevel)}% ${CC.auto}`, a: '#00d986' },
+    { l: CC.pif, v: fmtMoneyT(last.pifT), s: `${CC.gdp}: ${fmtMoneyT(last.gdpT)}`, a: '#F5A623' },
+    { l: `${CC.vs} ${BASE_YEAR}`, v: fmtVal(Math.round((last.total / BASE_MEDIAN) * 100)) + '%', s: CC.vsSub, a: '#f0f4f8' },
+  ];
+  const el = document.getElementById('cards');
+  el.innerHTML = cards.map(c => `<div class="card"><div class="lbl">${c.l}</div><div class="val" style="color:${c.a}">${c.v}</div><div class="sub">${c.s}</div></div>`).join('');
+}
+
+function updateLegend() {
+  const el = document.getElementById('legend');
+  el.innerHTML = activeStreams().map(s => `<div class="legend-item"><div class="legend-dot" style="background:${s.color}"></div>${s.label}</div>`).join('');
+}
+
+function update() {
+  const data = simulate(P);
+  updateCards(data);
+  buildChart(data);
+  updateLegend();
+}
+
+function applyPreset(p) {
+  const D = DEFAULTS;
+  if (p === 'proactive') P = Object.assign({}, D);
+  if (p === 'reactive') P = Object.assign({}, D, { pifSeedAum:300, pifContribRate:0.5, caRampYears:18, youthGrantSeed:1000 });
+  if (p === 'delayed') P = Object.assign({}, D, { enablePIF:false, enableYouth:false, enableDataRoyalty:false, enableTadawul:false, caRampYears:22 });
+  if (p === 'noAction') P = Object.assign({}, D, { enablePIF:false, enableCA:false, enableYouth:false, enableEnergy:false, enableDataRoyalty:false, enableTadawul:false, enableDemonet:false });
+  buildPanel(); update();
+}
+
+function togglePanel() {
+  panelOpen = !panelOpen;
+  document.getElementById('panel').className = 'panel' + (panelOpen ? '' : ' closed');
+  const isRtl = currentLang === 'ar';
+  document.getElementById('panelBtn').textContent = isRtl ? (panelOpen ? '▸' : '◂') : (panelOpen ? '◂' : '▸');
+  setTimeout(() => { if (chart) chart.resize(); }, 350);
+}
+
+// Init
+loadRealData();
+</script>
+</body>
+</html>

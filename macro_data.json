@@ -1,0 +1,44 @@
+{
+    "metadata": {
+        "source": "World Bank Free API (api.worldbank.org)",
+        "description": "Baseline macroeconomic parameters for the Saudi Arabian Economy Simulator."
+    },
+    "saudi_arabia": {
+        "population_total": {
+            "value": 32200000,
+            "year": 2022,
+            "source": "Fallback"
+        },
+        "gdp_usd": {
+            "value": 1108000000000,
+            "year": 2022,
+            "source": "Fallback"
+        },
+        "gdp_growth_annual_percent": {
+            "value": 2.0,
+            "year": 2022,
+            "source": "Fallback"
+        },
+        "labor_force_participation_rate": {
+            "value": 65.098,
+            "year": "2025",
+            "source": "World Bank API"
+        },
+        "pif_aum_billion_usd": {
+            "value": 925.0,
+            "source": "Fixed: Public Investment Fund"
+        },
+        "vat_rate": {
+            "value": 15.0,
+            "source": "Fixed: ZATCA"
+        },
+        "corporate_zakat_rate": {
+            "value": 2.5,
+            "source": "Fixed: ZATCA"
+        },
+        "citizens_account_monthly_usd_equiv": {
+            "value": 930.0,
+            "source": "Fixed: CA Average"
+        }
+    }
+}

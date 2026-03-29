@@ -1,0 +1,33 @@
+name: Quarterly Macro Data Update Pipeline
+
+on:
+  schedule:
+    - cron: '0 0 1 */3 *'
+  workflow_dispatch:
+
+jobs:
+  update-data:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+        
+      - name: Setup Python Environment
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      - name: Fetch Latest Micro-Indicators from World Bank Free API
+        run: |
+          python scripts/fetch_worldbank.py
+
+      - name: Validate Data JSON Schema
+        run: |
+          jq . macro_data.json > /dev/null || (echo "Invalid JSON Output" && exit 1)
+
+      - name: Commit and Push Updates
+        uses: stefanzweifel/git-auto-commit-action@v4
+        with:
+          commit_message: "chore: Automated Quarterly World Bank API Macro Update [skip ci]"
+          file_pattern: 'macro_data.json'
+          branch: main
