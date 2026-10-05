@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: 🔒 Report a security vulnerability
+    url: https://github.com/muxd22-alt/UHI_SAUDI/security/advisories/new
+    about: Private, coordinated disclosure — please do not open a public issue for security bugs.
+  - name: 📖 Documentation & accessibility statement
+    url: https://github.com/muxd22-alt/UHI_SAUDI#readme
+    about: Read the README, accessibility statement and contributing guide before filing.

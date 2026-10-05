@@ -1,0 +1,64 @@
+name: ♿ Accessibility barrier
+description: Report a barrier for assistive-technology users
+title: "[A11y]: "
+labels: ["accessibility"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for helping make this tool usable for everyone. See our
+        [accessibility statement](https://github.com/muxd22-alt/UHI_SAUDI/blob/main/ACCESSIBILITY.md)
+        for supported environments and known limitations.
+  - type: dropdown
+    id: barrier
+    attributes:
+      label: Type of barrier
+      options:
+        - Keyboard / focus
+        - Screen reader announcement
+        - Colour or contrast
+        - Text sizing / zoom / reflow
+        - Motion or animation
+        - RTL / Arabic rendering
+        - Chart data not accessible
+        - Something else
+    validations:
+      required: true
+  - type: textarea
+    id: what
+    attributes:
+      label: What is the barrier?
+      description: What were you trying to do, what happened instead?
+    validations:
+      required: true
+  - type: input
+    id: env
+    attributes:
+      label: Assistive technology + browser + OS
+      placeholder: "NVDA 2025.1 / Firefox 130 / Windows 11"
+    validations:
+      required: true
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Severity
+      options:
+        - Blocking — cannot use the tool at all
+        - Significant — a core task is very hard
+        - Minor — inconvenience with a workaround
+    validations:
+      required: true
+  - type: textarea
+    id: workaround
+    attributes:
+      label: Workaround (if any)
+      placeholder: Export CSV gives me the numbers instead of the chart.
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Checklist
+      options:
+        - label: I searched [existing issues](https://github.com/muxd22-alt/UHI_SAUDI/issues) for duplicates
+          required: true
+        - label: This is not a security vulnerability (those go to Security advisories)
+          required: true

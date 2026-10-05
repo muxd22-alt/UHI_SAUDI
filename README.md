@@ -1,4 +1,10 @@
-﻿# 🇸🇦 Saudi Arabia Autonomous Economy Simulator
+# 🇸🇦 Saudi Arabia Autonomous Economy Simulator
+
+[![License: MIT](https://img.shields.io/badge/License-MIT-00d986.svg)](LICENSE)
+[![WCAG 2.1 AA target](https://img.shields.io/badge/accessibility-WCAG%202.1%20AA-5B8DEF.svg)](ACCESSIBILITY.md)
+[![Code of Conduct](https://img.shields.io/badge/Code%20of%20Conduct-Contributor%20Covenant-2DD4A8.svg)](CODE_OF_CONDUCT.md)
+[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](CONTRIBUTING.md)
+[![Data: World Bank API](https://img.shields.io/badge/data-World%20Bank%20API-F5A623.svg)](https://api.worldbank.org/v2/country/SAU)
 
 > **محاكي الاقتصاد السعودي المستقل** — a Vision 2030 scenario engine that models Saudi Arabia's transition from a wage-based labour economy to an **autonomous, asset-backed household income system** driven by AI automation, sovereign capital and data/energy dividends.
 
@@ -192,6 +198,34 @@ python scripts/fetch_worldbank.py   # rewrites docs/macro_data.json
 Headless-Chrome checks run against the built page (local server, live-API-only and `file://` variants): baseline/midpoint/end KPI values, step-accurate slider labels, preset switching, slider recompute, plain-year labels, per-card accents, toggle ARIA state, chart mode + legend hiding, section collapse, RTL/SAR switch, document title sync, drawer behaviour, reset and URL-hash sync — **33/33 passing**. Layout is verified at 1600px, 768px and 430px (0 overflowing elements).
 
 ---
+
+---
+
+## 🤝 Community
+
+| Document | What it covers |
+|----------|----------------|
+| [Contributing guide](CONTRIBUTING.md) | Dev setup, project conventions (bilingual dictionary, constant-USD engine, calibration vs indicators), testing checklist, PR flow |
+| [Code of Conduct](CODE_OF_CONDUCT.md) | Contributor Covenant 2.1 — our standards and enforcement ladder |
+| [Security policy](SECURITY.md) | How to report vulnerabilities privately, scope, and response targets |
+| [Accessibility statement](ACCESSIBILITY.md) | Supported environments, implemented features, known limitations, how to report a barrier |
+| [License (MIT)](LICENSE) | Attribution and reuse terms |
+
+**Filing something?** Use the [issue forms](https://github.com/muxd22-alt/UHI_SAUDI/issues/new/choose)
+for 🐛 bugs, 💡 features and ♿ accessibility barriers — or the
+[private advisory channel](https://github.com/muxd22-alt/UHI_SAUDI/security/advisories/new)
+for security reports. Pull requests follow the
+[PR template](.github/PULL_REQUEST_TEMPLATE.md).
+
+---
+
+## 📄 License
+
+Released under the [MIT License](LICENSE). Baseline macro indicators are
+fetched from the free [World Bank API](https://api.worldbank.org/v2/country/SAU)
+and remain subject to the World Bank's dataset terms of use. Model outputs are
+indicative research — not financial advice.
+
 
 <div dir="rtl" align="right">
 

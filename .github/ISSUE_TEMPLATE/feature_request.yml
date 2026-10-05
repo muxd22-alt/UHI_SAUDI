@@ -1,0 +1,53 @@
+name: 💡 Feature request
+description: Propose an improvement to the model, UI or docs
+title: "[Feature]: "
+labels: ["enhancement"]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem or opportunity
+      description: What question should the simulator answer better?
+      placeholder: Households under 2 people are treated the same as large families...
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed solution
+      description: How should it work? For model changes, cite sources where possible.
+    validations:
+      required: true
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      options:
+        - Simulation engine / new income stream
+        - Sliders, presets or controls
+        - Charts / visualisation
+        - Internationalisation (EN/AR, USD/SAR)
+        - Data pipeline (World Bank API, calibration)
+        - Accessibility
+        - Documentation
+        - Other
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+  - type: textarea
+    id: impact
+    attributes:
+      label: Impact on default scenario
+      description: Would this change the documented baseline ($60,639 → $138,069, PIF $5.2T, GDP $3.4T, 288%)?
+      placeholder: No — only affects scenarios where the new toggle is enabled.
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Checklist
+      options:
+        - label: I searched [existing issues](https://github.com/muxd22-alt/UHI_SAUDI/issues) for duplicates
+          required: true
+        - label: I am willing to help implement this
