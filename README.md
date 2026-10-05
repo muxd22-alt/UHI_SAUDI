@@ -199,8 +199,6 @@ Headless-Chrome checks run against the built page (local server, live-API-only a
 
 ---
 
----
-
 ## 🤝 Community
 
 | Document | What it covers |
@@ -243,6 +241,8 @@ indicative research — not financial advice.
 - تحديث ربع سنوي آلي لبيانات البنك الدولي مع الحفاظ على ثوابت المعايرة.
 
 **التشغيل:** `python -m http.server 8000` ثم افتح `http://localhost:8000/docs/` — أو افتح الملف مباشرة في المتصفح.
+
+**المشاركة:** يُرحَّب بالمساهمات من المطوّرين والباحثين والمترجمين. راجع [دليل المساهمة](CONTRIBUTING.md)، و[ملف قواعد السلوك](CODE_OF_CONDUCT.md)، و[سياسة الأمان](SECURITY.md)، و[بيان الوصولية](ACCESSIBILITY.md). تُرفع البلاغات عبر [نماذج Issues](https://github.com/muxd22-alt/UHI_SAUDI/issues/new/choose)، وتُرفع ثغرات الأمان عبر [القناة الخاصة](https://github.com/muxd22-alt/UHI_SAUDI/security/advisories/new). المشروع مرخّص برخصة [MIT](LICENSE).
 
 **إخلاء مسؤولية:** نمذجة توضيحية لأغراض البحث والتعليم، وليست نصيحة مالية أو استثمارية.
 
